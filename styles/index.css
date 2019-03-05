@@ -53,3 +53,11 @@ button:hover:disabled {
 .shopping-item__checked {
   text-decoration: line-through;
 }
+
+#error-message {
+  border: solid red;
+  padding-left: 20px;
+  padding-right: 20px;
+  color: red;
+  margin-bottom: 20px;
+}
