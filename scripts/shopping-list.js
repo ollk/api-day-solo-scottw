@@ -102,21 +102,22 @@ const shoppingList = (function(){
     $('.js-shopping-list').on('click', '.js-item-toggle', event => {
       const id = getItemIdFromElement(event.currentTarget);
       const checkedStatus = getCheckedStatusFromStore(id);
-      api.updateItem(id, {checked: !checkedStatus});
-      store.findAndUpdate(id, {checked: !checkedStatus});
-      render();
+      api.updateItem(id, {checked: !checkedStatus})
+        .then(() => {
+          store.findAndUpdate(id, {checked: !checkedStatus});
+          render();
+        });
     });
   }
   
   function handleDeleteItemClicked() {
-    // like in `handleItemCheckClicked`, we use event delegation
     $('.js-shopping-list').on('click', '.js-item-delete', event => {
-      // get the index of the item in store.items
       const id = getItemIdFromElement(event.currentTarget);
-      // delete the item
-      store.findAndDelete(id);
-      // render the updated shopping list
-      render();
+      api.deleteItem(id)
+        .then(()=> {
+          store.findAndDelete(id);
+          render();
+        }); 
     });
   }
   
@@ -125,10 +126,12 @@ const shoppingList = (function(){
       event.preventDefault();
       const id = getItemIdFromElement(event.currentTarget);
       const itemName = $(event.currentTarget).find('.shopping-item').val();
-      api.updateItem(id, {name: itemName});
-      store.findAndUpdate(id, {name: itemName});
-      store.setItemIsEditing(id, false);
-      render();
+      api.updateItem(id, {name: itemName})
+        .then(() => {
+          store.findAndUpdate(id, {name: itemName});
+          store.setItemIsEditing(id, false);
+          render();
+        });
     });
   }
   

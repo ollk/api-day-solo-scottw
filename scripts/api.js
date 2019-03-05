@@ -38,10 +38,17 @@ const api = (function(){
     });
   };
 
+  const deleteItem = function(id){
+    return fetch(`${BASE_URL}/items/${id}`, {
+      method: 'DELETE',
+    });
+  };
+
 
   return {
     getItems,
     createItem,
     updateItem,
+    deleteItem,
   };
 })();
