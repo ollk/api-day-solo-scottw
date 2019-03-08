@@ -78,9 +78,20 @@ const shoppingList = (function(){
       event.preventDefault();
       const newItemName = $('.js-shopping-list-entry').val();
       $('.js-shopping-list-entry').val('');
+      let error = null;
       api.createItem(newItemName)
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok){
+            error = {code: res.status};
+          }
+          return res.json();
+        })
         .then((newItem) => {
+          if (error) {
+            error.message = newItem.message;
+            return Promise.reject(error);
+          }
+          
           store.addItem(newItem);
           render();
         });
