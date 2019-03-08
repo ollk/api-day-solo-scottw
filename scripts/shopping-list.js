@@ -45,6 +45,17 @@ const shoppingList = (function(){
   function render() {
     // Filter item list if store prop is true by item.checked === false
     let items = [ ...store.items ];
+
+    if(store.errorMessage) {
+      $('.js-error-message').html(`<p>ERROR: ${store.errorMessage}</p>`);
+      $('.js-error-message').removeClass('hidden');
+    }
+
+    if(!store.errorMessage) {
+      $('.js-error-message').html('');
+      $('.js-error-message').addClass('hidden');
+    }
+
     if (store.hideCheckedItems) {
       items = items.filter(item => !item.checked);
     }
@@ -63,13 +74,30 @@ const shoppingList = (function(){
   }
 
   const renderFromServer = function() {
+    let error =null;
     api.getItems()
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          error = {code: res.status};
+        }
+        return res.json();
+      })
       .then((items) => {
+        if (error) {
+          return handleErrors(error, items);
+        }
         items.forEach((item) => store.addItem(item));
         console.log('renderFromServer ran', store.items);
         render();
       });
+  };
+
+  const handleErrors = function(error, data) {
+    error.message = data.message;
+    store.setErrorMessage(error.message);
+    render();
+    store.setErrorMessage('');
+    return Promise.reject(error);
   };
   
   
@@ -88,8 +116,7 @@ const shoppingList = (function(){
         })
         .then((newItem) => {
           if (error) {
-            error.message = newItem.message;
-            return Promise.reject(error);
+            return handleErrors(error, newItem);
           }
           
           store.addItem(newItem);
@@ -113,8 +140,18 @@ const shoppingList = (function(){
     $('.js-shopping-list').on('click', '.js-item-toggle', event => {
       const id = getItemIdFromElement(event.currentTarget);
       const checkedStatus = getCheckedStatusFromStore(id);
+      let error = null;
       api.updateItem(id, {checked: !checkedStatus})
-        .then(() => {
+        .then((res) => {
+          if (!res.ok) {
+            error = {code: res.status};
+          }
+          return res.json();
+        })
+        .then(data => {
+          if (error) {
+            return handleErrors(error, data);
+          }
           store.findAndUpdate(id, {checked: !checkedStatus});
           render();
         });
@@ -124,8 +161,18 @@ const shoppingList = (function(){
   function handleDeleteItemClicked() {
     $('.js-shopping-list').on('click', '.js-item-delete', event => {
       const id = getItemIdFromElement(event.currentTarget);
+      let error = null;
       api.deleteItem(id)
-        .then(()=> {
+        .then((res)=> {
+          if (!res.ok) {
+            error = {code: res.status};
+          }
+          return res.json();
+        })
+        .then(data => {
+          if (error) {
+            return handleErrors(error, data);
+          }
           store.findAndDelete(id);
           render();
         }); 
@@ -137,8 +184,18 @@ const shoppingList = (function(){
       event.preventDefault();
       const id = getItemIdFromElement(event.currentTarget);
       const itemName = $(event.currentTarget).find('.shopping-item').val();
+      let error = null;
       api.updateItem(id, {name: itemName})
-        .then(() => {
+        .then((res) => {
+          if (!res.ok) {
+            error = {code: res.status};
+          }
+          return res.json();
+        })
+        .then(data => {
+          if (error) {
+            return handleErrors(error, data);
+          }
           store.findAndUpdate(id, {name: itemName});
           store.setItemIsEditing(id, false);
           render();
@@ -183,6 +240,8 @@ const shoppingList = (function(){
   return {
     render: render,
     bindEventListeners: bindEventListeners,
-    renderFromServer
+    renderFromServer,
+
+    handleErrors,
   };
 }());

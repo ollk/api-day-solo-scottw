@@ -11,9 +11,6 @@
 <body>
   <div class="container">
     <h1>Shopping List</h1> 
-    <div id="error-message" class="hidden">
-      <p>Error message</p>
-    </div>
     <form id="js-shopping-list-form">
       <label for="shopping-list-entry">Add an item</label>
       <input type="text" name="shopping-list-entry" class="js-shopping-list-entry" placeholder="e.g., broccoli">
@@ -27,6 +24,7 @@
         <input type="text" name="shopping-list-search-entry" class="js-shopping-list-search-entry" />
       </div>
     </form>
+    <div class="js-error-message hidden error"></div>
     <ul class="shopping-list js-shopping-list">
     </ul>
   </div>
