@@ -32,10 +32,15 @@ const store = (function(){
     Object.assign(this.findById(id), newData);
   };
 
+  const setErrorMessage = function(message) {
+    this.errorMessage = message;
+  };
+
   return {
     items: [],
     hideCheckedItems: false,
     searchTerm: '',
+    errorMessage: '',
 
     addItem,
     findById,
@@ -44,6 +49,8 @@ const store = (function(){
     setSearchTerm,
     setItemIsEditing,
     findAndUpdate,
+
+    setErrorMessage,
   };
   
 }());
